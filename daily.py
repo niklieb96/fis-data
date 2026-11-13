@@ -1,44 +1,44 @@
 """
 Daily FIS update, meant to run on GitHub Actions twice a day.
- 
+
     python daily.py              # current season
     python daily.py --days 4     # start lists for races in the next 4 days (default 3)
- 
+
 Writes
     data/fis_<season>_runs.csv        all results of the current season so far (model format)
     data/startlists/<event>.csv       start list (bib, skier) for each upcoming race
     data/status.json                  when it ran, what it found, what's coming up
- 
+
 Past seasons are kept outside this repository.
 """
 import argparse, json, os, sys
 from datetime import date, datetime, timedelta, timezone
 import pandas as pd
 import fis_scraper as fs
- 
+
 TECH = ("GS", "SL")
- 
- 
+
+
 def current_season(today):
     return today.year + 1 if today.month >= 7 else today.year
- 
- 
+
+
 def parse_startlist(html):
-    """Start list from a race page that has no results yet: bib + FIS code + name.
+    """Start list from a race page that has no results yet: bib, FIS code + name, ski brand.
     Returns an empty table if the page has no readable start list (yet)."""
     try:
         cols, main, sections = fs.parse_race(html)
     except Exception as e:
         print(f"  start list not readable: {type(e).__name__}: {e}", file=sys.stderr)
         main, sections = [], {}
-    rows = [dict(bib=bib, skier=f"{code} {name}") for code, name, vals, bib, brand in main]
+    rows = [dict(bib=bib, skier=f"{code} {name}", brand=brand) for code, name, vals, bib, brand in main]
     for entries in sections.values():
-        rows += [dict(bib=bib, skier=f"{code} {name}") for code, name, vals, bib, brand in entries]
-    df = pd.DataFrame(rows, columns=["bib", "skier"]).drop_duplicates("skier")
+        rows += [dict(bib=bib, skier=f"{code} {name}", brand=brand) for code, name, vals, bib, brand in entries]
+    df = pd.DataFrame(rows, columns=["bib", "skier", "brand"]).drop_duplicates("skier")
     df["bib_num"] = pd.to_numeric(df.bib, errors="coerce")
     return df.sort_values("bib_num").drop(columns="bib_num")
- 
- 
+
+
 def main(days_ahead=3, out="data", delay=1.5):
     today = date.today()
     season = current_season(today)
@@ -100,8 +100,8 @@ def main(days_ahead=3, out="data", delay=1.5):
     json.dump(status, open(f"{out}/status.json", "w"), indent=1)
     print(json.dumps(status, indent=1))
     return status
- 
- 
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--days", type=int, default=3)
