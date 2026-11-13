@@ -1,39 +1,39 @@
 """
 Daily FIS update, meant to run on GitHub Actions twice a day.
-
+ 
     python daily.py              # current season
     python daily.py --days 4     # start lists for races in the next 4 days (default 3)
-
+ 
 Writes
     data/fis_<season>_runs.csv        all results of the current season so far (model format)
     data/startlists/<event>.csv       start list (bib, skier) for each upcoming race
     data/status.json                  when it ran, what it found, what's coming up
-
-Past seasons stay in data/fis_history.csv (uploaded once, never re-scraped).
+ 
+Past seasons are kept outside this repository.
 """
 import argparse, json, os, sys
 from datetime import date, datetime, timedelta, timezone
 import pandas as pd
 import fis_scraper as fs
-
+ 
 TECH = ("GS", "SL")
-
-
+ 
+ 
 def current_season(today):
     return today.year + 1 if today.month >= 7 else today.year
-
-
+ 
+ 
 def parse_startlist(html):
     """Start list from a race page that has no results yet: bib + FIS code + name."""
     cols, main, sections = fs.parse_race(html)
     rows = [dict(bib=bib, skier=f"{code} {name}") for code, name, vals, bib, brand in main]
     for entries in sections.values():
         rows += [dict(bib=bib, skier=f"{code} {name}") for code, name, vals, bib, brand in entries]
-    df = pd.DataFrame(rows).drop_duplicates("skier")
+    df = pd.DataFrame(rows, columns=["bib", "skier"]).drop_duplicates("skier")
     df["bib_num"] = pd.to_numeric(df.bib, errors="coerce")
     return df.sort_values("bib_num").drop(columns="bib_num")
-
-
+ 
+ 
 def main(days_ahead=3, out="data", delay=1.5):
     today = date.today()
     season = current_season(today)
@@ -41,7 +41,9 @@ def main(days_ahead=3, out="data", delay=1.5):
     os.makedirs(f"{out}/startlists", exist_ok=True)
     events = {}
     for month in (10, 11, 12, 1, 2, 3, 4):
-        for e in fs.parse_events(fetcher.get(fs.events_url(season, month), use_cache=False)):
+        # all events, not only those with results, so upcoming races are found too
+        url = fs.events_url(season, month).replace("eventselection=results", "eventselection=")
+        for e in fs.parse_events(fetcher.get(url, use_cache=False)):
             if not e["cancelled"] and e["event_id"]:
                 events[e["event_id"]] = e
     results, upcoming, seen = [], [], set()
@@ -85,11 +87,13 @@ def main(days_ahead=3, out="data", delay=1.5):
     json.dump(status, open(f"{out}/status.json", "w"), indent=1)
     print(json.dumps(status, indent=1))
     return status
-
-
+ 
+ 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--days", type=int, default=3)
     ap.add_argument("--out", default="data")
+    a = ap.parse_args()
+    main(a.days, a.out)
     a = ap.parse_args()
     main(a.days, a.out)
