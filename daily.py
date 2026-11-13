@@ -24,8 +24,13 @@ def current_season(today):
  
  
 def parse_startlist(html):
-    """Start list from a race page that has no results yet: bib + FIS code + name."""
-    cols, main, sections = fs.parse_race(html)
+    """Start list from a race page that has no results yet: bib + FIS code + name.
+    Returns an empty table if the page has no readable start list (yet)."""
+    try:
+        cols, main, sections = fs.parse_race(html)
+    except Exception as e:
+        print(f"  start list not readable: {type(e).__name__}: {e}", file=sys.stderr)
+        main, sections = [], {}
     rows = [dict(bib=bib, skier=f"{code} {name}") for code, name, vals, bib, brand in main]
     for entries in sections.values():
         rows += [dict(bib=bib, skier=f"{code} {name}") for code, name, vals, bib, brand in entries]
@@ -65,7 +70,11 @@ def main(days_ahead=3, out="data", delay=1.5):
             url = f"{fs.BASE}/results.html?sectorcode=AL&raceid={c['race_id']}"
             if d <= today:                                   # may have results already
                 html = fetcher.get(url)
-                runs = fs.race_to_runs(html, two_runs=disc in TECH and run_type == "race")
+                try:
+                    runs = fs.race_to_runs(html, two_runs=disc in TECH and run_type == "race")
+                except Exception as e:                       # page without results table
+                    print(f"  {venue} {disc} {c['date'][:10]}: no results ({type(e).__name__})", file=sys.stderr)
+                    runs = []
                 if runs:
                     for r in runs:
                         results.append(dict(season=season, venue=venue, gender=c["gender"], discipline=disc,
@@ -73,8 +82,12 @@ def main(days_ahead=3, out="data", delay=1.5):
                     continue
                 fetcher.forget(url)                          # not run yet: fetch fresh next time
             if today <= d <= today + timedelta(days=days_ahead) and run_type == "race":
-                sl = parse_startlist(fetcher.get(url, use_cache=False))
+                html = fetcher.get(url, use_cache=False)
+                sl = parse_startlist(html)
                 key = f"{season}_{venue.replace(' ', '')}_{c['gender']}_{disc}_{c['date'][:10]}"
+                if not len(sl):                              # keep the page so the parser can be fixed
+                    os.makedirs(f"{out}/debug", exist_ok=True)
+                    open(f"{out}/debug/{key}.html", "w", encoding="utf-8").write(html)
                 upcoming.append(dict(key=key, date=c["date"][:10], venue=venue, gender=c["gender"],
                                      discipline=disc, starters=len(sl)))
                 if len(sl):
@@ -93,7 +106,5 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--days", type=int, default=3)
     ap.add_argument("--out", default="data")
-    a = ap.parse_args()
-    main(a.days, a.out)
     a = ap.parse_args()
     main(a.days, a.out)
