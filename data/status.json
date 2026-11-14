@@ -1,5 +1,5 @@
 {
- "ran_at": "2026-11-14T12:00+00:00",
+ "ran_at": "2026-11-14T22:51+00:00",
  "season": 2027,
  "races_with_results": 2,
  "result_rows": 196,
@@ -10,7 +10,7 @@
    "venue": "Levi",
    "gender": "W",
    "discipline": "SL",
-   "starters": 30
+   "starters": 89
   },
   {
    "key": "2027_Levi_M_SL_2026-11-15",
@@ -18,7 +18,7 @@
    "venue": "Levi",
    "gender": "M",
    "discipline": "SL",
-   "starters": 0
+   "starters": 86
   }
  ]
 }
