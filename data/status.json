@@ -1,24 +1,16 @@
 {
- "ran_at": "2026-11-14T22:51+00:00",
+ "ran_at": "2026-11-15T12:37+00:00",
  "season": 2027,
- "races_with_results": 2,
- "result_rows": 196,
+ "races_with_results": 3,
+ "result_rows": 315,
  "upcoming": [
-  {
-   "key": "2027_Levi_W_SL_2026-11-14",
-   "date": "2026-11-14",
-   "venue": "Levi",
-   "gender": "W",
-   "discipline": "SL",
-   "starters": 89
-  },
   {
    "key": "2027_Levi_M_SL_2026-11-15",
    "date": "2026-11-15",
    "venue": "Levi",
    "gender": "M",
    "discipline": "SL",
-   "starters": 86
+   "starters": 30
   }
  ]
 }
