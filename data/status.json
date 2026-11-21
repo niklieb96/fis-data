@@ -1,5 +1,5 @@
 {
- "ran_at": "2026-11-21T00:33+00:00",
+ "ran_at": "2026-11-21T13:20+00:00",
  "season": 2027,
  "races_with_results": 4,
  "result_rows": 430,
@@ -10,7 +10,7 @@
    "venue": "Gurgl",
    "gender": "W",
    "discipline": "SL",
-   "starters": 66
+   "starters": 30
   },
   {
    "key": "2027_Gurgl_M_SL_2026-11-22",
