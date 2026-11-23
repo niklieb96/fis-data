@@ -1,16 +1,7 @@
 {
- "ran_at": "2026-11-22T23:58+00:00",
+ "ran_at": "2026-11-23T15:49+00:00",
  "season": 2027,
- "races_with_results": 5,
- "result_rows": 525,
- "upcoming": [
-  {
-   "key": "2027_Gurgl_M_SL_2026-11-22",
-   "date": "2026-11-22",
-   "venue": "Gurgl",
-   "gender": "M",
-   "discipline": "SL",
-   "starters": 68
-  }
- ]
+ "races_with_results": 6,
+ "result_rows": 621,
+ "upcoming": []
 }
