@@ -1,5 +1,5 @@
 {
- "ran_at": "2026-11-25T15:25+00:00",
+ "ran_at": "2026-11-26T02:01+00:00",
  "season": 2027,
  "races_with_results": 6,
  "result_rows": 621,
@@ -13,11 +13,27 @@
    "starters": 0
   },
   {
+   "key": "2027_Killington_W_SL_2026-11-29",
+   "date": "2026-11-29",
+   "venue": "Killington",
+   "gender": "W",
+   "discipline": "SL",
+   "starters": 0
+  },
+  {
    "key": "2027_CopperMountain,CO_M_SG_2026-11-28",
    "date": "2026-11-28",
    "venue": "Copper Mountain, CO",
    "gender": "M",
    "discipline": "SG",
+   "starters": 0
+  },
+  {
+   "key": "2027_CopperMountain,CO_M_GS_2026-11-29",
+   "date": "2026-11-29",
+   "venue": "Copper Mountain, CO",
+   "gender": "M",
+   "discipline": "GS",
    "starters": 0
   }
  ]
